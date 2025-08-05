@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=3.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Jenahfer's Galactic Memorial - Complete Cosmic Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .animation-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 2s ease-in-out;
+        }
+
+        .content-layer.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .simulation-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        h1 {
+            font-size: 4em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #87ceeb, #fff, #87ceeb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(135, 206, 235, 0.5);
+            text-align: center;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        h2 {
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            color: #87ceeb;
+            text-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
+            text-align: center;
+            animation: fadeInUp 2s ease-out;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #b8d4f0;
+            text-align: center;
+        }
+
+        p {
+            font-size: 1.4em;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            color: #e8e8e8;
+            max-width: 900px;
+            text-align: center;
+            animation: fadeInUp 2s ease-out 0.5s both;
+        }
+
+        .memorial-quote {
+            font-style: italic;
+            font-size: 1.8em;
+            color: #87ceeb;
+            margin: 40px 0;
+            text-shadow: 0 0 15px rgba(135, 206, 235, 0.4);
+            text-align: center;
+            animation: quoteFade 3s ease-in-out 1s both;
+        }
+
+        .date-marker {
+            color: #87ceeb;
+            font-weight: bold;
+            font-size: 1.6em;
+            margin: 20px 0;
+            text-align: center;
+            animation: starPulse 2s ease-in-out infinite;
+        }
+
+        .info-overlay {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #87ceeb;
+            z-index: 15;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 1s ease-out;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .info-overlay.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .galactic-info {
+            color: #87ceeb;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #87ceeb, #4dabf7);
+            z-index: 20;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px #87ceeb;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .controls.visible {
+            opacity: 1;
+        }
+
+        button {
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            border: 2px solid #87ceeb;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(135, 206, 235, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #2a5298, #1e3c72);
+            box-shadow: 0 6px 20px rgba(135, 206, 235, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button.active {
+            background: linear-gradient(45deg, #87ceeb, #4dabf7);
+            color: #000;
+        }
+
+        .star-field {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .jeneb-star {
+            background: white !important;
+            box-shadow: 0 0 15px white, 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: jenebGlow 3s ease-in-out infinite;
+        }
+
+        .galaxy-trail {
+            position: absolute;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 30px rgba(135, 206, 235, 0.5); }
+            100% { text-shadow: 0 0 50px rgba(135, 206, 235, 0.8); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes quoteFade {
+            0% { opacity: 0; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes starPulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        @keyframes jenebGlow {
+            0%, 100% { 
+                opacity: 0.9; 
+                box-shadow: 0 0 15px white, 0 0 30px rgba(255, 255, 255, 0.5);
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                box-shadow: 0 0 25px white, 0 0 50px rgba(255, 255, 255, 0.8);
+                transform: scale(1.2);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 2em; }
+            p { font-size: 1.1em; max-width: 90%; }
+            .memorial-quote { font-size: 1.3em; }
+            .info-overlay { 
+                max-width: 280px;
+                padding: 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="star-field" id="starField"></div>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="animation-container">
+        <canvas id="canvas" class="simulation-canvas"></canvas>
+        
+        <!-- Scene 1: Title -->
+        <div class="content-layer active" id="scene1">
+            <h1>Jenahfer's Galactic Memorial</h1>
+            <div class="memorial-quote">
+                "In memory of my sweet lady, my beloved wife<br>
+                Forever shining as Jeneb through our cosmic journey"
+            </div>
+            <div class="date-marker">★ August 5th, 1986 - August 5th, 2025 ★</div>
+        </div>
+
+        <!-- Scene 2: Beginning -->
+        <div class="content-layer" id="scene2">
+            <h2>August 5th, 1986</h2>
+            <p>On this day, our solar system began its journey through 171 billion miles of galactic space. Above in the summer sky, Cygnus soared with Jeneb watching over us as we started this magnificent cosmic voyage.</p>
+        </div>
+
+        <!-- Scene 3: Constellation -->
+        <div class="content-layer" id="scene3">
+            <h2>The Faithful Beacon</h2>
+            <p>While our entire solar system travels through the galaxy at 514,000 mph, Jeneb remains our constant celestial guardian - 2,600 light-years away, steadfast and unchanging throughout our cosmic wandering.</p>
+        </div>
+
+        <!-- Scene 4: Journey -->
+        <div class="content-layer" id="scene4">
+            <h2>39 Years of Galactic Motion</h2>
+            <p>Watch as our solar system spirals through the Milky Way - Earth orbiting the Sun 39 times while our entire stellar neighborhood travels 171 billion miles through space, always under Jeneb's watchful light.</p>
+        </div>
+
+        <!-- Scene 5: Final -->
+        <div class="content-layer" id="scene5">
+            <h2>An Eternal Cosmic Memorial</h2>
+            <div class="memorial-quote">
+                "Through galaxies vast and time unending,<br>
+                Love transcends all space and motion.<br>
+                In Jeneb's light, forever constant,<br>
+                We find peace in cosmic devotion."
+            </div>
+        </div>
+
+        <div class="info-overlay" id="infoOverlay">
+            <h3>Cosmic Journey Status</h3>
+            <div id="currentDate">Date: August 5th, 1986</div>
+            <div id="yearsElapsed">Years Elapsed: 0.0</div>
+            <div id="earthOrbits">Earth Orbits: 0.0</div>
+            <div id="earthDistance">Earth Distance: 0 billion miles</div>
+            <div class="galactic-info">
+                <div id="galacticDistance">Galactic Journey: 0 billion miles</div>
+                <div id="galacticSpeed">Solar System Speed: 514,000 mph</div>
+                <div id="totalDistance">Total Distance: 0 billion miles</div>
+            </div>
+        </div>
+
+        <div class="controls" id="controls">
+            <button id="playBtn">Play Journey</button>
+            <button id="pauseBtn" class="active">Pause</button>
+            <button id="resetBtn">Restart Memorial</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Animation state
+        let currentScene = 0;
+        let sceneStartTime = 0;
+        let animationStarted = false;
+        let currentDay = 0;
+        let isPlaying = false;
+        let simulationActive = false;
+        let journeyComplete = false;
+        
+        // Timing - Reverent pacing with extended opening
+        const titleSceneDuration = 30000; // 30 seconds for opening memorial - time to honor and reflect
+        const sceneDuration = 20000; // 20 seconds per scene - time to absorb each concept
+        const totalScenes = 5;
+        
+        // Cosmic journey parameters
+        const startDate = new Date('1986-08-05');
+        const endDate = new Date('2025-08-05');
+        const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+        const totalYears = totalDays / 365.25;
+        
+        // Galactic motion - Solar System travels ~514,000 mph through galaxy
+        const galacticSpeedMph = 514000;
+        const totalGalacticMiles = totalYears * 365.25 * 24 * galacticSpeedMph; // ~171 billion miles
+        
+        // Earth orbital parameters - Precise position for August 5th, 1986
+        const orbitRadius = 80; // Smaller to make room for galactic motion
+        const startingOrbitalDegrees = 213; // Precise position: 213° from vernal equinox (August 5th, 1986)
+        
+        // Galactic motion visualization
+        let galacticTrail = [];
+        const maxTrailLength = 200;
+        
+        // Initialize
+        resizeCanvas();
+        createStarField();
+        startAnimation();
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        function createStarField() {
+            const starField = document.getElementById('starField');
+            const numStars = 200; // More stars for galactic view
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                
+                // Create Jeneb star (white, larger, positioned for 86° 22' altitude)
+                if (i === 0) {
+                    star.className += ' jeneb-star';
+                    star.style.left = '50%'; // Centered horizontally for culmination
+                    star.style.top = '3%';   // 86° 22' altitude positioning
+                    star.style.width = '8px';
+                    star.style.height = '8px';
+                }
+                
+                starField.appendChild(star);
+            }
+        }
+        
+        function startAnimation() {
+            sceneStartTime = Date.now();
+            animationStarted = true;
+            animate();
+        }
+        
+        function showScene(sceneIndex) {
+            document.querySelectorAll('.content-layer').forEach(layer => {
+                layer.classList.remove('active');
+            });
+            
+            const sceneElement = document.getElementById(`scene${sceneIndex + 1}`);
+            if (sceneElement) {
+                sceneElement.classList.add('active');
+            }
+            
+            if (sceneIndex === 3) { // Journey scene
+                document.getElementById('infoOverlay').classList.add('visible');
+                document.getElementById('controls').classList.add('visible');
+                simulationActive = true;
+                isPlaying = true;
+            } else if (sceneIndex >= 3) {
+                // Keep controls visible for final scene too
+                document.getElementById('infoOverlay').classList.remove('visible');
+                document.getElementById('controls').classList.add('visible');
+                simulationActive = false;
+            } else {
+                document.getElementById('infoOverlay').classList.remove('visible');
+                document.getElementById('controls').classList.remove('visible');
+                simulationActive = false;
+            }
+            
+            const progress = ((sceneIndex + 1) / totalScenes) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function drawGalacticSimulation() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Progress through the 39-year journey
+            if (simulationActive && isPlaying && !journeyComplete) {
+                currentDay += 12; // Increased speed for better visibility
+                if (currentDay >= totalDays) {
+                    currentDay = totalDays; // Cap at exactly 39 years
+                    journeyComplete = true;
+                }
+            }
+            
+            const journeyProgress = currentDay / totalDays;
+            
+            // Calculate galactic movement
+            const galacticDistance = journeyProgress * 250; // Increased distance for better visualization
+            const currentGalacticX = centerX - 125 + galacticDistance;
+            const currentGalacticY = centerY + Math.sin(journeyProgress * Math.PI * 0.1) * 20; // Slight wave
+            
+            // Add to galactic trail
+            if (simulationActive) {
+                galacticTrail.push({x: currentGalacticX, y: currentGalacticY});
+                if (galacticTrail.length > maxTrailLength) {
+                    galacticTrail.shift();
+                }
+            }
+            
+            // Draw galactic trail (our path through the galaxy)
+            if (galacticTrail.length > 1) {
+                ctx.strokeStyle = 'rgba(135, 206, 235, 0.3)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i < galacticTrail.length; i++) {
+                    const point = galacticTrail[i];
+                    const alpha = i / galacticTrail.length;
+                    if (i === 0) ctx.moveTo(point.x, point.y);
+                    else ctx.lineTo(point.x, point.y);
+                }
+                ctx.stroke();
+            }
+            
+            // Draw Sun at current galactic position
+            ctx.save();
+            ctx.fillStyle = '#ffff00';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 25;
+            ctx.beginPath();
+            ctx.arc(currentGalacticX, currentGalacticY, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+            
+            // Draw Earth's orbit around the moving Sun
+            const earthAngle = (startingOrbitalDegrees/360 + currentDay/365.25) * 2 * Math.PI;
+            const earthX = currentGalacticX + Math.cos(earthAngle) * orbitRadius;
+            const earthY = currentGalacticY + Math.sin(earthAngle) * orbitRadius;
+            
+            // Draw Earth's orbital path around current Sun position
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(currentGalacticX, currentGalacticY, orbitRadius, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw Earth with realistic appearance
+            ctx.save();
+            
+            // Earth's atmosphere glow
+            ctx.fillStyle = 'rgba(100, 149, 237, 0.3)';
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 10, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Earth's base (ocean blue)
+            ctx.fillStyle = '#1e90ff';
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 7, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Earth's continents (simplified green/brown landmasses)
+            ctx.fillStyle = '#228b22';
+            
+            // North America
+            ctx.beginPath();
+            ctx.ellipse(earthX - 2, earthY - 2, 1.5, 2, 0, 0, Math.PI);
+            ctx.fill();
+            
+            // Europe/Africa
+            ctx.beginPath();
+            ctx.ellipse(earthX + 1, earthY - 1, 1, 3, 0.3, 0, Math.PI);
+            ctx.fill();
+            
+            // Asia
+            ctx.beginPath();
+            ctx.ellipse(earthX + 2, earthY + 1, 2, 1, 0, 0, Math.PI);
+            ctx.fill();
+            
+            // Add subtle white clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.beginPath();
+            ctx.ellipse(earthX - 1, earthY + 1, 1, 0.5, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.ellipse(earthX + 1.5, earthY - 2, 0.8, 0.4, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Earth's subtle glow
+            ctx.shadowColor = '#87ceeb';
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = 'rgba(135, 206, 235, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(earthX, earthY, 7, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            ctx.restore();
+            
+            // Draw Cygnus constellation (fixed position - based on 11:35:20 WWV, August 5, 1986)
+            // Navigator's precision: Deneb at 86° 22' altitude
+            drawCygnus(canvas.width * 0.5, canvas.height * 0.08); // Positioned for 86° 22' altitude
+            
+            // Draw connecting line from Earth to Jeneb (showing constant watching)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 10]);
+            ctx.beginPath();
+            ctx.moveTo(earthX, earthY);
+            ctx.lineTo(canvas.width * 0.5, canvas.height * 0.03); // Updated for precise Jeneb position
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            updateCosmicInfo();
+        }
+        
+        function drawCygnus(centerX, centerY) {
+            const stars = [
+                {x: 0, y: -50, name: "Jeneb", size: 8},      // Jeneb (Deneb) - bright white
+                {x: 5, y: -10, name: "Sadr", size: 4},       // Gamma Cygni (Sadr)
+                {x: -35, y: -15, name: "Delta", size: 3},    // Delta Cygni - left wing
+                {x: 45, y: -5, name: "Epsilon", size: 3},    // Epsilon Cygni - right wing
+                {x: 8, y: 40, name: "Albireo", size: 3}      // Albireo - head
+            ];
+            
+            // Draw constellation lines
+            ctx.strokeStyle = '#aaa';
+            ctx.lineWidth = 1;
+            ctx.globalAlpha = 0.7;
+            
+            const lines = [[0,1],[1,4],[2,1],[1,3]];
+            lines.forEach(line => {
+                const star1 = stars[line[0]];
+                const star2 = stars[line[1]];
+                ctx.beginPath();
+                ctx.moveTo(centerX + star1.x, centerY + star1.y);
+                ctx.lineTo(centerX + star2.x, centerY + star2.y);
+                ctx.stroke();
+            });
+            
+            ctx.globalAlpha = 1;
+            
+            // Draw stars
+            stars.forEach(star => {
+                if (star.name === "Jeneb") {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowColor = '#ffffff';
+                    ctx.shadowBlur = 25;
+                } else {
+                    ctx.fillStyle = '#fff';
+                    ctx.shadowBlur = 5;
+                }
+                
+                ctx.beginPath();
+                ctx.arc(centerX + star.x, centerY + star.y, star.size, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                if (star.name === "Jeneb") {
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '18px Arial';
+                    ctx.fontWeight = 'bold';
+                    ctx.fillText("Jeneb", centerX + star.x + 15, centerY + star.y - 15);
+                }
+            });
+        }
+        
+        function updateCosmicInfo() {
+            if (!simulationActive) return;
+            
+            const currentDate = new Date(startDate.getTime() + currentDay * 24 * 60 * 60 * 1000);
+            const yearsElapsed = currentDay / 365.25;
+            const earthOrbits = yearsElapsed;
+            const earthMiles = earthOrbits * 584000000; // Miles per Earth orbit
+            const galacticMiles = yearsElapsed * 365.25 * 24 * galacticSpeedMph;
+            const totalMiles = earthMiles + galacticMiles;
+            
+            document.getElementById('currentDate').textContent = 
+                `Date: ${currentDate.toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}`;
+            document.getElementById('yearsElapsed').textContent = 
+                `Years Elapsed: ${Math.round(yearsElapsed * 10) / 10}`;
+            document.getElementById('earthOrbits').textContent = 
+                `Earth Orbits: ${Math.round(earthOrbits * 10) / 10}`;
+            document.getElementById('earthDistance').textContent = 
+                `Earth Distance: ${Math.round(earthMiles / 1000000000 * 10) / 10} billion miles`;
+            document.getElementById('galacticDistance').textContent = 
+                `Galactic Journey: ${Math.round(galacticMiles / 1000000000 * 10) / 10} billion miles`;
+            document.getElementById('totalDistance').textContent = 
+                `Total Distance: ${Math.round(totalMiles / 1000000000 * 10) / 10} billion miles`;
+        }
+        
+        function animate() {
+            const now = Date.now();
+            const elapsed = now - sceneStartTime;
+            
+            // Clear canvas with slight fade for trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw cosmic simulation
+            drawGalacticSimulation();
+            
+            // Scene transitions
+            if (currentScene === 0 && elapsed > titleSceneDuration) {
+                // Give the opening memorial its full reverent time
+                currentScene = 1;
+                sceneStartTime = now;
+                showScene(currentScene);
+            } else if (currentScene > 0 && elapsed > sceneDuration && currentScene < totalScenes - 1) {
+                currentScene++;
+                sceneStartTime = now;
+                showScene(currentScene);
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Control buttons
+        document.getElementById('playBtn').addEventListener('click', () => {
+            isPlaying = true;
+            document.getElementById('playBtn').classList.add('active');
+            document.getElementById('pauseBtn').classList.remove('active');
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPlaying = false;
+            document.getElementById('pauseBtn').classList.add('active');
+            document.getElementById('playBtn').classList.remove('active');
+        });
+        
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            // Reset all animation states
+            currentScene = 0;
+            currentDay = 0;
+            galacticTrail = [];
+            journeyComplete = false;
+            sceneStartTime = Date.now();
+            isPlaying = false;
+            simulationActive = false;
+            animationStarted = false;
+            
+            // Hide info overlay and controls
+            document.getElementById('infoOverlay').classList.remove('visible');
+            document.getElementById('controls').classList.remove('visible');
+            
+            // Reset progress bar
+            document.getElementById('progressBar').style.width = '0%';
+            
+            // Show first scene
+            showScene(0);
+            
+            // Reset button states
+            document.getElementById('pauseBtn').classList.add('active');
+            document.getElementById('playBtn').classList.remove('active');
+            
+            // Restart the animation sequence
+            setTimeout(() => {
+                animationStarted = true;
+                sceneStartTime = Date.now();
+            }, 100);
+        });
+        
+        // Auto-start - the memorial will now properly respect the 30-second opening duration
+    </script>
+</body>
+</html>
